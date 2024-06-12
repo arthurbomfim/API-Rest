@@ -5,7 +5,7 @@ import { ObjectSchema, ValidationError } from 'yup';
 
 type TProperty = 'body' | 'header' | 'query' | 'params';
 
-type TGetSchema = <T>(schema: ObjectSchema<T>) => ObjectSchema<T>;
+type TGetSchema = <T extends object>(schema: ObjectSchema<T>) => ObjectSchema<T>;
 
 type TAllschemas = Record<TProperty, ObjectSchema<any>>;
 
