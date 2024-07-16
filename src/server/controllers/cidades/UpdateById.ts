@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
 import { validation } from '../../shared/middlewares';
 import { ICidade } from '../../database/models';
-
+import { cidadesProvider } from '../../database/providers/cidades';
 
 interface IParamProps {
  id?: number,
@@ -21,11 +21,16 @@ export const updateByIdValidation = validation(getSchema => ({
 }));
 
 export const updateById = async (req: Request<IParamProps, {}, IBodyProps>, res: Response) => {
- if (Number(req.params.id) === 99999) return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-  errors: {
-   default: 'Registro não encontrado'
-  }
- });
+ const id = Number(req.params.id);
+ const result = await cidadesProvider.UpdateById(id, req.body);
+ if (result instanceof Error) {
+  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+   errors: {
+    default: result.message
+   }
+  });
+ }
 
- return res.status(StatusCodes.OK).send();
+
+ return res.status(StatusCodes.OK).json(result);
 };
