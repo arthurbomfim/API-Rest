@@ -5,37 +5,45 @@ import { StatusCodes } from 'http-status-codes';
 import { cidadesProvider } from '../../database/providers/cidades';
 
 interface IQueryProps {
- page?: number,
- limit?: number,
- filter?: string
+	id?: number
+	page?: number,
+	limit?: number,
+	filter?: string
 }
 
 
 export const getAllValidation = validation((getSchema) => ({
- query: getSchema<IQueryProps>(yup.object().shape({
-  page: yup.number().optional().moreThan(0),
-  limit: yup.number().optional().moreThan(0),
-  filter: yup.string().optional(),
- }))
+	query: getSchema<IQueryProps>(yup.object().shape({
+		id: yup.number().optional().default(0),
+		page: yup.number().optional().moreThan(0),
+		limit: yup.number().optional().moreThan(0),
+		filter: yup.string().optional(),
+	}))
 }));
 
 
 export const getAll = async (req: Request<{}, {}, {}, IQueryProps>, res: Response) => {
 
- // res.setHeader('access-control-expose-headers', 'x-total-count');
- // res.setHeader('x-total-count', 1);
- const page = Number(req.query.page);
- const limit = Number(req.query.limit);
- const filter = String(req.query.filter);
- const result = await cidadesProvider.GetAll(page, limit, filter);
- if (result instanceof Error) {
-  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-   errors: {
-    default: result.message
-   }
-  });
- }
+	const result = await cidadesProvider.GetAll(req.query.page || 1, req.query.limit || 7, req.query.filter || '', Number(req.query.id));
+	const count = await cidadesProvider.count(req.query.filter);
 
 
- return res.status(StatusCodes.OK).json(result);
+
+	if (result instanceof Error) {
+		return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+			errors: {
+				default: result.message
+			}
+		});
+	} else if (count instanceof Error) {
+		return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+			errors: { default: count.message }
+		});
+	}
+
+	res.setHeader('access-control-expose-headers', 'x-total-count');
+	res.setHeader('x-total-count', count);
+
+
+	return res.status(StatusCodes.OK).json(result);
 };
