@@ -5,7 +5,6 @@ import { StatusCodes } from 'http-status-codes';
 import { pessoasProvider } from '../../database/providers/pessoas';
 
 interface IQueryProps {
- id?: number
  page?: number,
  limit?: number,
  filter?: string
@@ -14,7 +13,6 @@ interface IQueryProps {
 
 export const getAllValidation = validation((getSchema) => ({
  query: getSchema<IQueryProps>(yup.object().shape({
-  id: yup.number().optional().default(0),
   page: yup.number().optional().moreThan(0),
   limit: yup.number().optional().moreThan(0),
   filter: yup.string().optional(),
@@ -24,7 +22,7 @@ export const getAllValidation = validation((getSchema) => ({
 
 export const getAll = async (req: Request<{}, {}, {}, IQueryProps>, res: Response) => {
 
- const result = await pessoasProvider.GetAll(req.query.page || 1, req.query.limit || 7, req.query.filter || '', Number(req.query.id));
+ const result = await pessoasProvider.GetAll(req.query.page || 1, req.query.limit || 7, req.query.filter || '');
  const count = await pessoasProvider.count(req.query.filter);
 
 

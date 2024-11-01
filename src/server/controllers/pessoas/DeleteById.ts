@@ -34,6 +34,5 @@ export const deleteById = async (req: Request<IParamProps>, res: Response) => {
   });
  }
 
-
  return res.status(StatusCodes.OK).send();
 };
