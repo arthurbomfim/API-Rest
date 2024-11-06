@@ -1,6 +1,6 @@
 import { Router } from 'express';
 //import { StatusCodes } from 'http-status-codes';
-import { cidadesController, pessoasController } from './../controllers';
+import { cidadesController, pessoasController, usuariosController } from './../controllers';
 
 const router = Router();
 
@@ -19,5 +19,8 @@ router.get('/pessoas', pessoasController.getAllValidation, pessoasController.get
 router.get('/pessoas/:id', pessoasController.getByIdValidation, pessoasController.getById);
 router.put('/pessoas/:id', pessoasController.updateByIdValidation, pessoasController.updateById);
 router.delete('/pessoas/:id', pessoasController.deleteByIdValidation, pessoasController.deleteById);
+
+router.post('/cadastrar', usuariosController.createValidation, usuariosController.signUp);
+router.post('/entrar', usuariosController.getByEmailValidation, usuariosController.signIn);
 
 export { router };
