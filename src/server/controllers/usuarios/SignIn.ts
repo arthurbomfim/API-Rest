@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { validation } from '../../shared/middlewares';
 import { IUsuario } from '../../database/models';
 import { usuariosProvider } from '../../database/providers/usuarios';
-import { PasswordCrypto } from '../../shared/services';
+import { JWTService, PasswordCrypto } from '../../shared/services';
 
 
 interface IBodyProps extends Omit<IUsuario, 'id' | 'nome'> { }
@@ -37,9 +37,17 @@ export const signIn = async (req: Request<{}, {}, IBodyProps>, res: Response) =>
    }
   });
  } else {
-  return res.status(StatusCodes.ACCEPTED).json({ token: 'token de acesso' });
+
+  const accessToken = JWTService.sign({ uid: result.id });
+  if (accessToken === 'JWT_SECRET_NOT_FOUND') {
+   return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    errors: {
+     default: 'Erro ao gerar o token de acesso'
+    }
+   });
+  }
+
+  return res.status(StatusCodes.ACCEPTED).json({ accessToken });
  }
 
-
- // return res.status(StatusCodes.OK).json(result);
 };
